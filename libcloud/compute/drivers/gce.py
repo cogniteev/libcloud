@@ -3992,7 +3992,7 @@ class GCENodeDriver(NodeDriver):
                     {
                         "type": "SCRATCH",
                         "initializeParams":{
-                            "diskType": disk_type_local_ssd
+                            "diskType": disk_type_local_ssd.extra['selfLink']
                         },
                         "autoDelete": True,
                         "interface": "NVME"
