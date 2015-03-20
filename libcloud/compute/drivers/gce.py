@@ -3773,7 +3773,7 @@ class GCENodeDriver(NodeDriver):
     def create_node(self, name, size, image, location=None,
                     ex_network='default',ex_subnetwork=None, ex_tags=None, ex_metadata=None,
                     ex_boot_disk=None, use_existing_disk=True,
-                   ex_boot_disk_size_gb=10, external_ip='ephemeral',internal_ip=None, ex_disk_type='pd-standard',
+                   ex_boot_disk_size_gb=None, ex_with_local_ssd=False, external_ip='ephemeral',internal_ip=None, ex_disk_type='pd-standard',
                     ex_disk_auto_delete=True, ex_service_accounts=None,
                     description=None, ex_can_ip_forward=None,
                     ex_disks_gce_struct=None, ex_nic_gce_struct=None,
@@ -3983,6 +3983,22 @@ class GCENodeDriver(NodeDriver):
                     'diskSizeGb': ex_boot_disk_size_gb
                 }
             }]
+            if ex_boot_disk_size_gb:
+                ex_disks_gce_struct[0]['initializeParams']['diskSizeGb'] = \
+                    ex_boot_disk_size_gb
+            if ex_with_local_ssd:
+                disk_type_local_ssd = self.ex_get_disktype('local-ssd', zone=location)
+                ex_disks_gce_struct.append(
+                    {
+                        "type": "SCRATCH",
+                        "initializeParams":{
+                            "diskType": disk_type_local_ssd
+                        },
+                        "autoDelete": True,
+                        "interface": "NVME"
+                    }
+
+                )
 
         request, node_data = self._create_node_req(
             name, size, image, location, ex_network, ex_tags, ex_metadata,
