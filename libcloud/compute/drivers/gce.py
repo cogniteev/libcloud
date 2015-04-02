@@ -3982,8 +3982,7 @@ class GCENodeDriver(NodeDriver):
                 'initializeParams': {
                     'diskName': name,
                     'diskType': ex_disk_type.extra['selfLink'],
-                    'sourceImage': image.extra['selfLink'],
-                    'diskSizeGb': ex_boot_disk_size_gb
+                    'sourceImage': image.extra['selfLink']
                 }
             }]
             if ex_boot_disk_size_gb:
