@@ -3945,7 +3945,7 @@ class GCENodeDriver(NodeDriver):
                              "'ex_boot_disk', or use the "
                              "'ex_disks_gce_struct'.")
 
-        if ex_with_local_ssd and ex_with_local_ssd not in {'SCSI', 'NVME'}:
+        if ex_with_local_ssd and ex_with_local_ssd not in ['SCSI', 'NVME']:
             raise ValueError("ex_with_local_ssd must be one of SCSI or NVME")
 
         location = location or self.zone
