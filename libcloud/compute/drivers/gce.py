@@ -3821,10 +3821,14 @@ class GCENodeDriver(NodeDriver):
                                         a new one.
         :type     ex_boot_disk_size_gb: ``int`` or ``None``
 
-        :keyword  ex_with_local_ssd: If set, specify to attach a local SSD to
-                                     the instance and which interface ot use:
-                                     'SCSI' or 'NVME'.
-        :type     ex_with_local_ssd: ``str`` or ``None``
+        :keyword  ex_with_local_ssd: If set, specify to attach one or more 
+                                     local SSD to the instance.
+                                     If the value is a string, it specifies the
+                                     type of interface ot use: 'SCSI' or 'NVME'.
+                                     It the value is a list of length l, then 
+                                     l local SSDs will be attached, each value
+                                     in the list specifies the interface type.
+        :type     ex_with_local_ssd: ``str`` or ``list`` or ``None``
 
         :keyword  external_ip: The external IP address to use.  If 'ephemeral'
                                (default), a new non-static address will be
@@ -3945,8 +3949,12 @@ class GCENodeDriver(NodeDriver):
                              "'ex_boot_disk', or use the "
                              "'ex_disks_gce_struct'.")
 
-        if ex_with_local_ssd and ex_with_local_ssd not in ['SCSI', 'NVME']:
-            raise ValueError("ex_with_local_ssd must be one of SCSI or NVME")
+        if ex_with_local_ssd:
+            if not isinstance(ex_with_local_ssd, list):
+                ex_with_local_ssd = [ex_with_local_ssd]
+            for local_ssd_type in ex_with_local_ssd:
+                if local_ssd_type not in ['SCSI', 'NVME']:
+                    raise ValueError("ex_with_local_ssd must be one of SCSI or NVME")
 
         location = location or self.zone
         if not hasattr(location, 'name'):
@@ -3996,18 +4004,17 @@ class GCENodeDriver(NodeDriver):
             if ex_with_local_ssd:
                 disk_type_local_ssd = self.ex_get_disktype('local-ssd',
                                                            zone=location)
-                ex_disks_gce_struct.append(
-                    {
-                        "type": "SCRATCH",
-                        "initializeParams": {
-                            "diskType": disk_type_local_ssd.extra['selfLink']
-                        },
-                        "autoDelete": True,
-                        "interface": ex_with_local_ssd
-
-                    }
-
-                )
+                for local_ssd in ex_with_local_ssd:
+                    ex_disks_gce_struct.append(
+                        {
+                            "type": "SCRATCH",
+                            "initializeParams": {
+                                "diskType": disk_type_local_ssd.extra['selfLink']
+                            },
+                            "autoDelete": True,
+                            "interface": local_ssd
+                        }
+                    )
 
         request, node_data = self._create_node_req(
             name, size, image, location, ex_network, ex_tags, ex_metadata,
