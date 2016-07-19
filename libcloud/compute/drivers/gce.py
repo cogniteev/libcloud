@@ -3824,7 +3824,7 @@ class GCENodeDriver(NodeDriver):
         :keyword  ex_with_local_ssd: If set, specify to attach one or more 
                                      local SSD to the instance.
                                      If the value is a string, it specifies the
-                                     type of interface ot use: 'SCSI' or 'NVME'.
+                                     type of interface to use: 'SCSI' or 'NVME'.
                                      It the value is a list of length l, then 
                                      l local SSDs will be attached, each value
                                      in the list specifies the interface type.
